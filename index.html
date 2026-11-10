@@ -24,16 +24,13 @@
     <p>Tippe auf eine Übung, um sie anzuhören.</p>
   </header>
 
-  <div id="offline-banner" class="offline-banner" hidden>
-    Kein Internet – nur die mit „✓ offline“ markierten Audios sind verfügbar.
-  </div>
-
   <main id="sections"></main>
 
   <footer class="credits">
     Alle Audios © Cornelsen Verlag. Sie werden direkt von
     <a href="https://codes.cornelsen.de/codes/products/9783060325818" target="_blank" rel="noopener">codes.cornelsen.de</a>
     abgespielt.
+    <br>vibe coded by Verena Lohmüller &amp; Claude
   </footer>
 
   <div id="player" class="player" hidden>
@@ -42,7 +39,6 @@
         <span id="player-where" class="player-where"></span>
         <span id="player-title" class="player-title"></span>
       </div>
-      <div id="player-msg" class="player-msg" hidden></div>
       <div class="player-seek">
         <span id="time-now" class="time">0:00</span>
         <input id="seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Position im Audio">

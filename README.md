@@ -10,21 +10,9 @@ zum **Access Workbook, Band 1** (Cornelsen, ISBN 978-3-06-032581-8), sortiert na
 - Ein Tipp auf eine Übung spielt das Audio direkt auf der Seite ab, ohne Weiterleitung.
 - Unten erscheint eine Leiste mit großen Knöpfen: 10 s zurück, Abspielen/Pause, 10 s vor,
   dazu ein Schieberegler. Die Wiedergabegeschwindigkeit ist absichtlich nicht einstellbar.
+- Tippt man irgendwo neben den Player, stoppt das Audio und der Player verschwindet.
 - Die Audiodateien liegen **nicht** in diesem Repository. Sie werden direkt von
   [codes.cornelsen.de](https://codes.cornelsen.de/codes/products/9783060325818) geladen.
-
-## Offline nutzen (Testphase)
-
-In jedem aufgeklappten Bereich gibt es den Knopf **„Für offline speichern“**. Damit werden die
-Audios dieses Bereichs im internen Speicher der WebApp abgelegt (kein sichtbarer Ordner, nicht im
-Repository). Gespeicherte Übungen tragen das Zeichen **„✓ offline“**. Ohne Internet erscheint oben
-ein gelber Hinweis, und nicht gespeicherte Übungen werden blass dargestellt. Mit „Entfernen“ wird
-der Speicher für diesen Bereich wieder freigegeben.
-
-- In Chrome (Android, Desktop) getestet und funktionsfähig.
-- Auf iPad/iPhone noch ungetestet. Bitte die Seite **vom Home-Bildschirm** aus starten, dort
-  speichern und dann im Flugmodus prüfen. Safari löscht Daten von Webseiten, die man länger als
-  sieben Tage nicht öffnet. Für WebApps auf dem Home-Bildschirm gilt diese Grenze nicht.
 
 ## Veröffentlichen (GitHub Pages)
 
@@ -52,7 +40,6 @@ Zum Abspielen braucht das iPad eine Internetverbindung.
 | `app.js` | Aufbau der Liste und Abspielen |
 | `style.css` | Gestaltung |
 | `manifest.webmanifest`, `icons/` | WebApp-Einstellungen und App-Symbol |
-| `sw.js` | Service Worker für die Offline-Nutzung |
 
 ### Eine Übung korrigieren oder ergänzen
 
@@ -74,3 +61,9 @@ Den Audio-Link finden Sie auf der Cornelsen-Seite über „Audio herunterladen�
 
 Cornelsen listet in Unit 2 zusätzlich die Übung „SPELLING Letters, S. 16, Ex. 20 a)“.
 Das ist dieselbe Datei wie in Unit 1. Sie erscheint hier deshalb nur in Unit 1.
+
+## Hinweis zur entfernten Offline-Funktion
+
+Eine Offline-Speicherung der Audios wurde getestet, funktionierte auf iPad und Android aber nicht
+und wurde wieder entfernt. `sw.js` ist nur noch dafür da, auf Geräten mit der Testversion die
+gespeicherten Daten zu löschen. Die Datei kann nach einigen Wochen gelöscht werden.

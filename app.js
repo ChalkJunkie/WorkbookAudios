@@ -13,11 +13,6 @@
   var timeTotal = document.getElementById('time-total');
   var btnPlay = document.getElementById('btn-play');
   var seeking = false;
-  // Offline-Speicherung (siehe unten)
-  var AUDIO_CACHE = 'audio-v1';
-  var canOffline = 'serviceWorker' in navigator && 'caches' in window;
-  var bars = [];
-  var msgEl = document.getElementById('player-msg');
 
   // Farben wie im Inhaltsverzeichnis des Schülerbuchs
   // (MyBook hat dort keine eigene Farbe, daher ein neutrales Grau)
@@ -75,7 +70,6 @@
     det.appendChild(sum);
 
     var pages = el('div', 'pages');
-    pages.appendChild(makeOfflineBar(section));
     var lastPage = null;
     section.tracks.forEach(function (t) {
       if (t.page !== lastPage) {
@@ -84,7 +78,6 @@
       }
       var btn = el('button', 'track');
       btn.type = 'button';
-      btn.setAttribute('data-url', t.url);
       var icon = el('span', 'icon');
       icon.innerHTML = ICONS;
       btn.appendChild(icon);
@@ -92,7 +85,6 @@
       txt.appendChild(el('span', 'ex', t.exercise));
       txt.appendChild(el('span', 'title', t.title));
       btn.appendChild(txt);
-      btn.appendChild(el('span', 'saved-mark', '✓ offline'));
       btn.addEventListener('click', function () { play(btn, section, t); });
       pages.appendChild(btn);
     });
@@ -110,7 +102,6 @@
     if (current) current.classList.remove('playing', 'is-playing');
     current = btn;
     btn.classList.add('playing');
-    msgEl.hidden = true;
     audio.src = t.url;
     whereEl.textContent = section.name + ' · S. ' + t.page + ' · ' + t.exercise;
     titleEl.textContent = t.title;
@@ -128,16 +119,6 @@
   audio.addEventListener('play', function () { setPlaying(true); });
   audio.addEventListener('pause', function () { setPlaying(false); });
   audio.addEventListener('ended', function () { setPlaying(false); });
-  audio.addEventListener('error', function () {
-    setPlaying(false);
-    var saved = current && current.classList.contains('saved');
-    msgEl.textContent = navigator.onLine
-      ? 'Das Audio konnte nicht geladen werden.'
-      : saved
-        ? 'Dieses Gerät kann das gespeicherte Audio ohne Internet leider nicht abspielen.'
-        : 'Kein Internet – dieses Audio ist nicht offline gespeichert.';
-    msgEl.hidden = false;
-  });
 
   // Wiedergabegeschwindigkeit bleibt immer bei 1x.
   audio.addEventListener('ratechange', function () {
@@ -183,127 +164,35 @@
   }
   document.getElementById('btn-back').addEventListener('click', function () { skip(-10); });
   document.getElementById('btn-fwd').addEventListener('click', function () { skip(10); });
-  // =====================================================================
-  // Offline-Speicherung (Test). Die Audios landen im internen Speicher
-  // der WebApp (Cache "audio-v1"), nicht in einem sichtbaren Ordner.
-  // =====================================================================
 
-  if (canOffline) {
-    navigator.serviceWorker.register('sw.js').catch(function () { /* egal */ });
+  // Player schließen: Tippen irgendwo außerhalb des Players und der Übungen
+  // stoppt das Audio und blendet die Leiste aus.
+  function closePlayer() {
+    audio.pause();
+    audio.removeAttribute('src');
+    audio.load();
+    if (current) current.classList.remove('playing', 'is-playing');
+    current = null;
+    player.hidden = true;
+    player.classList.remove('is-playing');
   }
+  document.addEventListener('click', function (e) {
+    if (player.hidden) return;
+    if (player.contains(e.target)) return;
+    if (e.target.closest && e.target.closest('.track')) return;
+    closePlayer();
+  });
 
-  function makeOfflineBar(section) {
-    var bar = el('div', 'offline-bar');
-    if (!canOffline) { bar.hidden = true; return bar; }
-    var main = el('button', 'offline-btn');
-    main.type = 'button';
-    var info = el('span', 'offline-info');
-    var del = el('button', 'offline-del', 'Entfernen');
-    del.type = 'button';
-    bar.appendChild(main); bar.appendChild(info); bar.appendChild(del);
-    var state = { section: section, main: main, info: info, del: del, busy: false };
-    main.addEventListener('click', function () { if (!state.busy) saveSection(state); });
-    del.addEventListener('click', function () { if (!state.busy) removeSection(state); });
-    bars.push(state);
-    return bar;
+  // Aufräumen nach der entfernten Offline-Testversion:
+  // alte Service Worker abmelden und gespeicherte Daten löschen.
+  if ('serviceWorker' in navigator && navigator.serviceWorker.getRegistrations) {
+    navigator.serviceWorker.getRegistrations().then(function (regs) {
+      regs.forEach(function (r) { r.unregister(); });
+    }).catch(function () {});
   }
-
-  function cachedUrls() {
-    return caches.open(AUDIO_CACHE).then(function (c) { return c.keys(); })
-      .then(function (reqs) {
-        var set = {};
-        reqs.forEach(function (r) { set[r.url] = true; });
-        return set;
-      });
+  if ('caches' in window) {
+    caches.keys().then(function (keys) {
+      keys.forEach(function (k) { caches.delete(k); });
+    }).catch(function () {});
   }
-
-  function updateAll() {
-    if (!canOffline) return Promise.resolve();
-    return cachedUrls().then(function (set) {
-      Array.prototype.forEach.call(document.querySelectorAll('.track'), function (b) {
-        b.classList.toggle('saved', !!set[b.getAttribute('data-url')]);
-      });
-      bars.forEach(function (st) { if (!st.busy) renderBar(st, set); });
-      updateOnline();
-    });
-  }
-
-  function renderBar(st, set) {
-    var tracks = st.section.tracks;
-    var have = tracks.filter(function (t) { return set[t.url]; }).length;
-    var all = tracks.length;
-    st.main.disabled = false;
-    st.main.classList.toggle('done', have === all);
-    if (have === all) {
-      st.main.textContent = '✓ Offline gespeichert';
-      st.main.disabled = true;
-      st.info.textContent = '';
-    } else if (have > 0) {
-      st.main.textContent = '⬇ Rest offline speichern';
-      st.info.textContent = have + ' von ' + all + ' gespeichert';
-    } else {
-      st.main.textContent = '⬇ Für offline speichern';
-      st.info.textContent = '';
-    }
-    st.del.hidden = have === 0;
-  }
-
-  function saveSection(st) {
-    if (!navigator.onLine) { st.info.textContent = 'Zum Speichern wird Internet benötigt.'; return; }
-    if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(function () {});
-    st.busy = true;
-    st.main.disabled = true;
-    st.del.hidden = true;
-    var done = 0, failed = 0, total = st.section.tracks.length;
-    function show() { st.main.textContent = 'Wird gespeichert … ' + done + ' / ' + total; }
-    show();
-    caches.open(AUDIO_CACHE).then(function (cache) {
-      return cachedUrls().then(function (set) {
-        var queue = st.section.tracks.slice();
-        function next() {
-          var t = queue.shift();
-          if (!t) return Promise.resolve();
-          var job = set[t.url] ? Promise.resolve() :
-            fetchAudio(t.url).then(function (res) { return cache.put(t.url, res); })
-              .catch(function () { failed++; });
-          return job.then(function () { done++; show(); return next(); });
-        }
-        return Promise.all([next(), next(), next()]); // drei gleichzeitig
-      });
-    }).catch(function () { failed = total; }).then(function () {
-      st.busy = false;
-      return updateAll().then(function () {
-        if (failed) st.info.textContent = failed + ' Audio(s) konnten nicht gespeichert werden.';
-      });
-    });
-  }
-
-  // Cornelsen leitet jede Audio-Adresse auf seinen Speicherserver weiter.
-  // Eine weitergeleitete Antwort lässt sich offline nicht abspielen, daher wird
-  // die Datei direkt dort abgeholt (und nur im Notfall über die Weiterleitung).
-  var STORAGE_HOST = 'https://webcodes-data-prod.obs-website.eu-de.otc.t-systems.com';
-  function fetchAudio(url) {
-    var direct = url.replace('https://codes.cornelsen.de', STORAGE_HOST);
-    return fetch(direct, { mode: 'no-cors' }).catch(function () {
-      return fetch(url, { mode: 'no-cors' });
-    });
-  }
-
-  function removeSection(st) {
-    caches.open(AUDIO_CACHE).then(function (cache) {
-      return Promise.all(st.section.tracks.map(function (t) { return cache.delete(t.url); }));
-    }).then(updateAll);
-  }
-
-  // Hinweis oben, wenn kein Internet da ist
-  var banner = document.getElementById('offline-banner');
-  function updateOnline() {
-    var off = !navigator.onLine;
-    banner.hidden = !off;
-    document.body.classList.toggle('is-offline', off);
-  }
-  window.addEventListener('online', updateOnline);
-  window.addEventListener('offline', updateOnline);
-  updateOnline();
-  updateAll();
 })();
