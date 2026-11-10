@@ -5,7 +5,11 @@ zum **Access Workbook, Band 1** (Cornelsen, ISBN 978-3-06-032581-8), sortiert na
 (MyBook, Here we go!, Unit 1–5) und innerhalb davon nach **Workbook-Seite**.
 
 - Jeder Bereich lässt sich auf- und zuklappen. Das iPad merkt sich, welche Bereiche offen sind.
+- Die Bereiche haben dieselben Farben wie im Inhaltsverzeichnis des Schülerbuchs
+  (MyBook hat dort keine eigene Farbe und ist deshalb grau).
 - Ein Tipp auf eine Übung spielt das Audio direkt auf der Seite ab, ohne Weiterleitung.
+- Unten erscheint eine Leiste mit großen Knöpfen: 10 s zurück, Abspielen/Pause, 10 s vor,
+  dazu ein Schieberegler. Die Wiedergabegeschwindigkeit ist absichtlich nicht einstellbar.
 - Die Audiodateien liegen **nicht** in diesem Repository. Sie werden direkt von
   [codes.cornelsen.de](https://codes.cornelsen.de/codes/products/9783060325818) geladen.
 
