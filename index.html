@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Access 1 Audios</title>
+  <meta name="description" content="Audiodateien zum Access Workbook 1 (Cornelsen), sortiert nach Unit und Seite.">
+
+  <!-- WebApp auf dem iPad (Safari: Teilen → Zum Home-Bildschirm) -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="Access Audios">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#1f5fa8">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+  <link rel="icon" type="image/png" href="icons/icon-192.png">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="top">
+    <h1>Access 1 <span>Workbook Audios</span></h1>
+    <p>Tippe auf eine Übung, um sie anzuhören.</p>
+  </header>
+
+  <main id="sections"></main>
+
+  <footer class="credits">
+    Alle Audios © Cornelsen Verlag. Sie werden direkt von
+    <a href="https://codes.cornelsen.de/codes/products/9783060325818" target="_blank" rel="noopener">codes.cornelsen.de</a>
+    abgespielt.
+  </footer>
+
+  <div id="player" class="player" hidden>
+    <div class="player-info">
+      <span id="player-where" class="player-where"></span>
+      <span id="player-title" class="player-title"></span>
+    </div>
+    <audio id="audio" controls preload="none"></audio>
+  </div>
+
+  <script src="data.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
