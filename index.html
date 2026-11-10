@@ -24,6 +24,10 @@
     <p>Tippe auf eine Übung, um sie anzuhören.</p>
   </header>
 
+  <div id="offline-banner" class="offline-banner" hidden>
+    Kein Internet – nur die mit „✓ offline“ markierten Audios sind verfügbar.
+  </div>
+
   <main id="sections"></main>
 
   <footer class="credits">
@@ -38,6 +42,7 @@
         <span id="player-where" class="player-where"></span>
         <span id="player-title" class="player-title"></span>
       </div>
+      <div id="player-msg" class="player-msg" hidden></div>
       <div class="player-seek">
         <span id="time-now" class="time">0:00</span>
         <input id="seek" type="range" min="0" max="0" step="0.1" value="0" aria-label="Position im Audio">
